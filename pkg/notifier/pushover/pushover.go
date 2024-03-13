@@ -43,20 +43,9 @@ func (Notifier) SendNotification(contact vcard.Card, when time.Time) error {
 		return fmt.Errorf("rendering text: %w", err)
 	}
 
-	var title string
-	for _, fn := range contact.FormattedNames() {
-		if fn.Value != "" {
-			title = fmt.Sprintf("%s (Birthday)", fn.Value)
-		}
-	}
-
-	if title == "" {
-		title = fmt.Sprintf("%s %s (Birthday)", contact.Name().GivenName, contact.Name().FamilyName)
-	}
-
 	message := &pushover.Message{
 		Message: text,
-		Title:   title,
+		Title:   formatter.FormatNotificationTitle(contact),
 		Sound:   os.Getenv("PUSHOVER_SOUND"),
 	}
 

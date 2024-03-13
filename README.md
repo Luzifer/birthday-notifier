@@ -20,7 +20,7 @@ Usage of birthday-notifier:
       --fetch-interval duration       How often to fetch birthdays from CardDAV (default 1h0m0s)
       --log-level string              Log level (debug, info, warn, error, fatal) (default "info")
       --notify-days-in-advance ints   Send notification X days before birthday (default [1])
-      --notify-via string             How to send the notification (one of: log, pushover) (default "log")
+      --notify-via strings            How to send the notification (log, pushover, slack) (default [log])
       --version                       Prints current version and exits
       --webdav-base-url string        Webdav server to connect to
       --webdav-pass string            Password for the Webdav user
@@ -39,3 +39,8 @@ To adjust the notification text see the template in [`pkg/formatter/formatter.go
   - `PUSHOVER_API_TOKEN` - Token for the App you've created in the Pushover Dashboard
   - `PUSHOVER_USER_KEY` - Token for the User to send the notification to
   - `PUSHOVER_SOUND` - (Optional) Specify a sound to use
+- **`slack`** - Send notification through Slack(-compatible) webhook
+  - `SLACK_WEBHOOK` - Webhook URL (i.e. `https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX` or `https://discord.com/api/webhooks/00000/XXXXX/slack`)
+  - `SLACK_CHANNEL` - (Optional) Specify the channel to send to
+  - `SLACK_ICON_EMOJI` - (Optional) Emoji to use as user icon
+  - `SLACK_USERNAME` - (Optional) Overwrite the hooks username

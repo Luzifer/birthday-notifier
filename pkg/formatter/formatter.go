@@ -59,6 +59,22 @@ func FormatNotificationText(contact vcard.Card, when time.Time) (text string, er
 	return buf.String(), nil
 }
 
+// FormatNotificationTitle provides a title from the contacts formatted
+// name or from given and family name
+func FormatNotificationTitle(contact vcard.Card) (title string) {
+	for _, fn := range contact.FormattedNames() {
+		if fn.Value != "" {
+			title = fmt.Sprintf("%s (Birthday)", fn.Value)
+		}
+	}
+
+	if title == "" {
+		title = fmt.Sprintf("%s %s (Birthday)", contact.Name().GivenName, contact.Name().FamilyName)
+	}
+
+	return title
+}
+
 func getAge(t time.Time) int {
 	return dateutil.ProjectToNextBirthday(t).Year() - t.Year()
 }

@@ -21,7 +21,7 @@ var (
 		FetchInterval       time.Duration `flag:"fetch-interval" default:"1h" description:"How often to fetch birthdays from CardDAV"`
 		LogLevel            string        `flag:"log-level" default:"info" description:"Log level (debug, info, warn, error, fatal)"`
 		NotifyDaysInAdvance []int         `flag:"notify-days-in-advance" default:"1" description:"Send notification X days before birthday"`
-		NotifyVia           []string      `flag:"notify-via" default:"log" description:"How to send the notification (one of: log, pushover)"`
+		NotifyVia           []string      `flag:"notify-via" default:"log" description:"How to send the notification (log, pushover, slack)"`
 		WebdavBaseURL       string        `flag:"webdav-base-url" default:"" description:"Webdav server to connect to"`
 		WebdavPass          string        `flag:"webdav-pass" default:"" description:"Password for the Webdav user"`
 		WebdavPrincipal     string        `flag:"webdav-principal" default:"principals/users/%s" description:"Principal format to fetch the addressbooks for (%s will be replaced with the webdav-user)"`
