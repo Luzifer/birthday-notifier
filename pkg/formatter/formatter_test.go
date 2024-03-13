@@ -20,6 +20,8 @@ func getTestVCard(t *testing.T, content string) vcard.Card {
 }
 
 func TestFormatNotificationText(t *testing.T) {
+	require.NoError(t, SetTemplate(DefaultTemplate))
+
 	card := getTestVCard(t, `BEGIN:VCARD
 VERSION:4.0
 N:Bloggs;Joe;;;

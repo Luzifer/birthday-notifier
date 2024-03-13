@@ -5,7 +5,6 @@ package formatter
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"regexp"
 	"strings"
 	"text/template"
@@ -18,31 +17,15 @@ import (
 const timeDay = 24 * time.Hour
 
 var (
-	defaultTemplate = regexp.MustCompile(`\s+`).ReplaceAllString(strings.TrimSpace(strings.ReplaceAll(`
+	// DefaultTemplate contains the template used in testing and as a
+	// default in the config package
+	DefaultTemplate = regexp.MustCompile(`\s+`).ReplaceAllString(strings.TrimSpace(strings.ReplaceAll(`
 {{ .contact | getName }} has their birthday {{ if .when | isToday -}} today {{- else -}} on {{ (.when | projectToNext).Format "Mon, 02 Jan" }} {{- end }}.
 {{ if gt .when.Year 1 -}}They are turning {{ .when | getAge }}.{{- end }}
 `, "\n", " ")), " ")
 
 	notifyTpl *template.Template
 )
-
-func init() {
-	rawTpl := defaultTemplate
-	if tpl := os.Getenv("NOTIFICATION_TEMPLATE"); tpl != "" {
-		rawTpl = tpl
-	}
-
-	var err error
-	notifyTpl, err = template.New("notification").Funcs(template.FuncMap{
-		"getAge":        getAge,
-		"getName":       getContactName,
-		"isToday":       dateutil.IsToday,
-		"projectToNext": dateutil.ProjectToNextBirthday,
-	}).Parse(rawTpl)
-	if err != nil {
-		panic(fmt.Errorf("parsing notification template: %w", err))
-	}
-}
 
 // FormatNotificationText takes the notification template and renders
 // the contact / birthday date into a text to submit in the notification
@@ -73,6 +56,24 @@ func FormatNotificationTitle(contact vcard.Card) (title string) {
 	}
 
 	return title
+}
+
+// SetTemplate initializes the template to use in the
+// FormatNotificationText function. This MUST be called before first
+// use of the FormatNotificationText function.
+func SetTemplate(rawTpl string) error {
+	var err error
+	notifyTpl, err = template.New("notification").Funcs(template.FuncMap{
+		"getAge":        getAge,
+		"getName":       getContactName,
+		"isToday":       dateutil.IsToday,
+		"projectToNext": dateutil.ProjectToNextBirthday,
+	}).Parse(rawTpl)
+	if err != nil {
+		return fmt.Errorf("parsing notification template: %w", err)
+	}
+
+	return nil
 }
 
 func getAge(t time.Time) int {

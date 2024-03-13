@@ -7,6 +7,7 @@ import (
 
 	"git.luzifer.io/luzifer/birthday-notifier/pkg/formatter"
 	"git.luzifer.io/luzifer/birthday-notifier/pkg/notifier"
+	"github.com/Luzifer/go_helpers/v2/fieldcollection"
 	"github.com/emersion/go-vcard"
 	"github.com/sirupsen/logrus"
 )
@@ -19,7 +20,7 @@ type (
 var _ notifier.Notifier = Notifier{}
 
 // SendNotification implements the Notifier interface
-func (Notifier) SendNotification(contact vcard.Card, when time.Time) error {
+func (Notifier) SendNotification(_ *fieldcollection.FieldCollection, contact vcard.Card, when time.Time) error {
 	if contact.Name() == nil {
 		return fmt.Errorf("contact has no name")
 	}
@@ -30,5 +31,11 @@ func (Notifier) SendNotification(contact vcard.Card, when time.Time) error {
 	}
 
 	logrus.WithField("name", contact.Name().GivenName).Info(text)
+	return nil
+}
+
+// ValidateSettings implements the Notifier interface
+func (Notifier) ValidateSettings(*fieldcollection.FieldCollection) error {
+	// We don't take settings so everything is fine
 	return nil
 }

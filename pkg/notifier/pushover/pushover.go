@@ -4,11 +4,11 @@ package pushover
 
 import (
 	"fmt"
-	"os"
 	"time"
 
 	"git.luzifer.io/luzifer/birthday-notifier/pkg/formatter"
 	"git.luzifer.io/luzifer/birthday-notifier/pkg/notifier"
+	"github.com/Luzifer/go_helpers/v2/fieldcollection"
 	"github.com/emersion/go-vcard"
 	"github.com/gregdel/pushover"
 )
@@ -18,24 +18,16 @@ type (
 	Notifier struct{}
 )
 
-var _ notifier.Notifier = Notifier{}
+var (
+	ptrStrEmpty = func(v string) *string { return &v }("")
+
+	_ notifier.Notifier = Notifier{}
+)
 
 // SendNotification implements the Notifier interface
-func (Notifier) SendNotification(contact vcard.Card, when time.Time) error {
+func (Notifier) SendNotification(settings *fieldcollection.FieldCollection, contact vcard.Card, when time.Time) error {
 	if contact.Name() == nil {
 		return fmt.Errorf("contact has no name")
-	}
-
-	var (
-		apiToken = os.Getenv("PUSHOVER_API_TOKEN")
-		userKey  = os.Getenv("PUSHOVER_USER_KEY")
-	)
-
-	if apiToken == "" {
-		return fmt.Errorf("missing PUSHOVER_API_TOKEN env variable")
-	}
-	if userKey == "" {
-		return fmt.Errorf("missing PUSHOVER_USER_KEY env variable")
 	}
 
 	text, err := formatter.FormatNotificationText(contact, when)
@@ -46,12 +38,25 @@ func (Notifier) SendNotification(contact vcard.Card, when time.Time) error {
 	message := &pushover.Message{
 		Message: text,
 		Title:   formatter.FormatNotificationTitle(contact),
-		Sound:   os.Getenv("PUSHOVER_SOUND"),
+		Sound:   settings.MustString("sound", ptrStrEmpty),
 	}
 
-	if _, err = pushover.New(apiToken).
-		SendMessage(message, pushover.NewRecipient(userKey)); err != nil {
+	if _, err = pushover.New(settings.MustString("apiToken", nil)).
+		SendMessage(message, pushover.NewRecipient(settings.MustString("userKey", nil))); err != nil {
 		return fmt.Errorf("sending notification: %w", err)
+	}
+
+	return nil
+}
+
+// ValidateSettings implements the Notifier interface
+func (Notifier) ValidateSettings(settings *fieldcollection.FieldCollection) (err error) {
+	if v, err := settings.String("apiToken"); err != nil || v == "" {
+		return fmt.Errorf("apiToken is expected to be non-empty string")
+	}
+
+	if v, err := settings.String("userKey"); err != nil || v == "" {
+		return fmt.Errorf("userKey is expected to be non-empty string")
 	}
 
 	return nil

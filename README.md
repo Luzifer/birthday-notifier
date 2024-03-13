@@ -17,30 +17,97 @@ Hosted somewhere it's always running and configured properly and birthday notifi
 ```console
 # birthday-notifier --help
 Usage of birthday-notifier:
-      --fetch-interval duration       How often to fetch birthdays from CardDAV (default 1h0m0s)
-      --log-level string              Log level (debug, info, warn, error, fatal) (default "info")
-      --notify-days-in-advance ints   Send notification X days before birthday (default [1])
-      --notify-via strings            How to send the notification (log, pushover, slack) (default [log])
-      --version                       Prints current version and exits
-      --webdav-base-url string        Webdav server to connect to
-      --webdav-pass string            Password for the Webdav user
-      --webdav-principal string       Principal format to fetch the addressbooks for (%s will be replaced with the webdav-user) (default "principals/users/%s")
-      --webdav-user string            Username for Webdav login
+  -c, --config string      Configuration file path (default "config.yaml")
+      --log-level string   Log level (debug, info, warn, error, fatal) (default "info")
+      --version            Prints current version and exits
 ```
 
-For Nextcloud leave the principal format the default, for other systems you might need to adjust it.
+## Configuration
 
-To adjust the notification text see the template in [`pkg/formatter/formatter.go`](./pkg/formatter/formatter.go) and provide your own as `NOTIFICATION_TEMPLATE` environment variable.
+```yaml
+# Specify days before the actual birthday to send advance notifications
+# i.e. to buy gifts or something. Default is to send only on the actual
+# birthday itself.
+notifyDaysInAdvance: [ 1 ]
 
-### Notifier configuration
+# Configure how to notify you when there is a birthday pending / today.
+# Each entry consists of a type and the settings for that kind of
+# notifier. For settings and available types see below.
+notifiers:
+  - type: slack
+    settings:
+      webhook: https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX
 
-- **`log`** - Just sends the notification to the console logs, no configuration available
-- **`pushover`** - Send notification via [Pushover](https://pushover.net)
-  - `PUSHOVER_API_TOKEN` - Token for the App you've created in the Pushover Dashboard
-  - `PUSHOVER_USER_KEY` - Token for the User to send the notification to
-  - `PUSHOVER_SOUND` - (Optional) Specify a sound to use
-- **`slack`** - Send notification through Slack(-compatible) webhook
-  - `SLACK_WEBHOOK` - Webhook URL (i.e. `https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX` or `https://discord.com/api/webhooks/00000/XXXXX/slack`)
-  - `SLACK_CHANNEL` - (Optional) Specify the channel to send to
-  - `SLACK_ICON_EMOJI` - (Optional) Emoji to use as user icon
-  - `SLACK_USERNAME` - (Optional) Overwrite the hooks username
+# Specify your own template for the notification text. The default is
+# shown below and whould yield something like this:
+#
+# Ava has their birthday on Wed, 13 Mar. They are turning 27.
+template: >-
+  {{ .contact | getName }} has their birthday
+  {{ if .when | isToday -}} today {{- else -}}
+  on {{ (.when | projectToNext).Format "Mon, 02 Jan" }} {{- end }}.
+  {{ if gt .when.Year 1 -}}They are turning {{ .when | getAge }}.{{- end }}
+
+# Configure how to connect to the CardDAV addressbooks inside the
+# webdav server
+webdav:
+  # Base-URL for the webdav server (example for Nextcloud)
+  baseURL: https://my-nextcloud.example.com/remote.php/dav/
+  # How often to fetch new birthdays (default: 1h)
+  fetchInterval: 1h
+  # Password for the user
+  pass: 'my super secret password'
+  # Principal format for the webdav server (default as below is valid
+  # for Nextcloud instances): `%s` will be replaced with the value of
+  # the user field below.
+  principal: 'principals/users/%s'
+  # Username for the login to the webdav server
+  user: 'my.username'
+```
+
+### Notifiers
+
+#### `log`
+
+Just sends the notification to the console logs
+
+```yaml
+notifiers:
+  - type: log
+    # No settings for this one
+```
+
+#### `pushover`
+
+Send notification via [Pushover](https://pushover.net)
+
+```yaml
+notifiers:
+  - type: pushover
+    settings:
+      # Token for the App you've created in the Pushover Dashboard
+      apiToken: '...' 
+      # Token for the User to send the notification to
+      userKey: '...'
+      # (Optional) Specify a sound to use
+      sound: ''
+```
+
+#### `slack`
+
+Send notification through Slack(-compatible) webhook
+
+```yaml
+notifiers:
+  - type: slack
+    settings:
+      # Webhook URL (i.e. `https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX`
+      # or `https://discord.com/api/webhooks/00000/XXXXX/slack`)
+      webhook: 'https://...'
+      # (Optional) Specify the channel to send to
+      channel: ''
+      # (Optional) Emoji to use as user icon
+      iconEmoji: ''
+      # (Optional) Overwrite the hooks username\
+      username: ''
+```

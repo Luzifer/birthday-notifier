@@ -6,27 +6,24 @@ import (
 	"sync"
 	"time"
 
+	"git.luzifer.io/luzifer/birthday-notifier/pkg/config"
 	"git.luzifer.io/luzifer/birthday-notifier/pkg/dateutil"
+	"git.luzifer.io/luzifer/birthday-notifier/pkg/formatter"
 	"git.luzifer.io/luzifer/birthday-notifier/pkg/notifier"
 	"github.com/emersion/go-vcard"
 	"github.com/pkg/errors"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
 
+	"github.com/Luzifer/go_helpers/v2/fieldcollection"
 	"github.com/Luzifer/rconfig/v2"
 )
 
 var (
 	cfg = struct {
-		FetchInterval       time.Duration `flag:"fetch-interval" default:"1h" description:"How often to fetch birthdays from CardDAV"`
-		LogLevel            string        `flag:"log-level" default:"info" description:"Log level (debug, info, warn, error, fatal)"`
-		NotifyDaysInAdvance []int         `flag:"notify-days-in-advance" default:"1" description:"Send notification X days before birthday"`
-		NotifyVia           []string      `flag:"notify-via" default:"log" description:"How to send the notification (log, pushover, slack)"`
-		WebdavBaseURL       string        `flag:"webdav-base-url" default:"" description:"Webdav server to connect to"`
-		WebdavPass          string        `flag:"webdav-pass" default:"" description:"Password for the Webdav user"`
-		WebdavPrincipal     string        `flag:"webdav-principal" default:"principals/users/%s" description:"Principal format to fetch the addressbooks for (%s will be replaced with the webdav-user)"`
-		WebdavUser          string        `flag:"webdav-user" default:"" description:"Username for Webdav login"`
-		VersionAndExit      bool          `flag:"version" default:"false" description:"Prints current version and exits"`
+		Config         string `flag:"config,c" default:"config.yaml" description:"Configuration file path"`
+		LogLevel       string `flag:"log-level" default:"info" description:"Log level (debug, info, warn, error, fatal)"`
+		VersionAndExit bool   `flag:"version" default:"false" description:"Prints current version and exits"`
 	}{}
 
 	birthdays     []birthdayEntry
@@ -61,33 +58,40 @@ func main() {
 		os.Exit(0)
 	}
 
-	var notifiers []notifier.Notifier
-	for _, nv := range cfg.NotifyVia {
-		notify := getNotifierByName(nv)
-		if notify == nil {
-			logrus.Fatal("unknown notifier specified")
-		}
-		notifiers = append(notifiers, notify)
+	configFile, err := config.LoadFromFile(cfg.Config)
+	if err != nil {
+		logrus.WithError(err).Fatal("loading configuration file")
 	}
 
-	if birthdays, err = fetchBirthdays(); err != nil {
+	if err = validateNotifierConfigs(configFile); err != nil {
+		logrus.WithError(err).Fatal("validating configuration")
+	}
+
+	if err = formatter.SetTemplate(configFile.Template); err != nil {
+		logrus.WithError(err).Fatal("setting template")
+	}
+
+	if birthdays, err = fetchBirthdays(configFile.Webdav); err != nil {
 		logrus.WithError(err).Fatal("initially fetching birthdays")
 	}
 
 	crontab := cron.New()
 
 	// Periodically update birthdays
-	if _, err = crontab.AddFunc(fmt.Sprintf("@every %s", cfg.FetchInterval), cronFetchBirthdays); err != nil {
+	if _, err = crontab.AddFunc(
+		fmt.Sprintf("@every %s", configFile.Webdav.FetchInterval),
+		cronFetchBirthdays(configFile.Webdav),
+	); err != nil {
 		logrus.WithError(err).Fatal("adding update-cron")
 	}
 
 	// Send notifications at midnight
-	if _, err = crontab.AddFunc("@midnight", cronSendNotifications(notifiers)); err != nil {
+	if _, err = crontab.AddFunc("@midnight", cronSendNotifications(configFile)); err != nil {
 		logrus.WithError(err).Fatal("adding update-cron")
 	}
 
 	logrus.WithFields(logrus.Fields{
-		"advance": cfg.NotifyDaysInAdvance,
+		"advance": configFile.NotifyDaysInAdvance,
 		"version": version,
 	}).Info("birthday-notifier started")
 	crontab.Start()
@@ -97,36 +101,45 @@ func main() {
 	}
 }
 
-func cronFetchBirthdays() {
-	birthdaysLock.Lock()
-	defer birthdaysLock.Unlock()
+func cronFetchBirthdays(webdavConfig config.WebdavConfig) func() {
+	return func() {
+		birthdaysLock.Lock()
+		defer birthdaysLock.Unlock()
 
-	var err error
-	if birthdays, err = fetchBirthdays(); err != nil {
-		logrus.WithError(err).Error("updating birthdays")
+		var err error
+		if birthdays, err = fetchBirthdays(webdavConfig); err != nil {
+			logrus.WithError(err).Error("updating birthdays")
+		}
 	}
 }
 
-func cronSendNotifications(notifiers []notifier.Notifier) func() {
+func cronSendNotifications(configFile config.File) func() {
 	return func() {
 		birthdaysLock.Lock()
 		defer birthdaysLock.Unlock()
 
 		for _, b := range birthdays {
-			for _, advanceDays := range append(cfg.NotifyDaysInAdvance, 0) {
+			for _, advanceDays := range append(configFile.NotifyDaysInAdvance, 0) {
 				if !dateutil.IsToday(notifyDate(dateutil.ProjectToNextBirthday(b.birthday), advanceDays)) {
 					continue
 				}
 
-				for i := range notifiers {
-					go func(n notifier.Notifier, contact vcard.Card, when time.Time) {
-						if err := n.SendNotification(contact, when); err != nil {
+				for i := range configFile.Notifiers {
+					notifyInstance := getNotifierByName(configFile.Notifiers[i].Type)
+
+					go func(
+						n notifier.Notifier,
+						settings *fieldcollection.FieldCollection,
+						contact vcard.Card,
+						when time.Time,
+					) {
+						if err := n.SendNotification(settings, contact, when); err != nil {
 							logrus.
 								WithError(err).
 								WithField("name", contact.Get(vcard.FieldFormattedName).Value).
 								Error("sending notification")
 						}
-					}(notifiers[i], b.contact, b.birthday)
+					}(notifyInstance, configFile.Notifiers[i].Settings, b.contact, b.birthday)
 				}
 			}
 		}
@@ -135,4 +148,21 @@ func cronSendNotifications(notifiers []notifier.Notifier) func() {
 
 func notifyDate(t time.Time, daysInAdvance int) time.Time {
 	return time.Date(t.Year(), t.Month(), t.Day()-daysInAdvance, 0, 0, 0, 0, time.Local)
+}
+
+func validateNotifierConfigs(configFile config.File) (err error) {
+	for i := range configFile.Notifiers {
+		notifierCfg := configFile.Notifiers[i]
+
+		n := getNotifierByName(notifierCfg.Type)
+		if n == nil {
+			return fmt.Errorf("notifier %q does not exist", notifierCfg.Type)
+		}
+
+		if err = n.ValidateSettings(notifierCfg.Settings); err != nil {
+			return fmt.Errorf("settings for %q are invalid: %w", notifierCfg.Type, err)
+		}
+	}
+
+	return nil
 }

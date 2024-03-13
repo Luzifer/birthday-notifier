@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"git.luzifer.io/luzifer/birthday-notifier/pkg/config"
 	"git.luzifer.io/luzifer/birthday-notifier/pkg/dateutil"
 	"github.com/emersion/go-vcard"
 	"github.com/emersion/go-webdav"
@@ -20,10 +21,10 @@ type (
 	}
 )
 
-func fetchBirthdays() (birthdays []birthdayEntry, err error) {
+func fetchBirthdays(webdavConfig config.WebdavConfig) (birthdays []birthdayEntry, err error) {
 	client, err := carddav.NewClient(
-		webdav.HTTPClientWithBasicAuth(http.DefaultClient, cfg.WebdavUser, cfg.WebdavPass),
-		cfg.WebdavBaseURL,
+		webdav.HTTPClientWithBasicAuth(http.DefaultClient, webdavConfig.User, webdavConfig.Pass),
+		webdavConfig.BaseURL,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("creating carddav client: %w", err)
@@ -31,7 +32,7 @@ func fetchBirthdays() (birthdays []birthdayEntry, err error) {
 
 	homeSet, err := client.FindAddressBookHomeSet(
 		context.Background(),
-		fmt.Sprintf(cfg.WebdavPrincipal, cfg.WebdavUser),
+		fmt.Sprintf(webdavConfig.Principal, webdavConfig.User),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("getting addressbook-home-set: %w", err)
