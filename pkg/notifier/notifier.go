@@ -4,7 +4,7 @@ package notifier
 import (
 	"time"
 
-	"github.com/Luzifer/go_helpers/v2/fieldcollection"
+	"github.com/Luzifer/go_helpers/fieldcollection"
 	"github.com/emersion/go-vcard"
 )
 

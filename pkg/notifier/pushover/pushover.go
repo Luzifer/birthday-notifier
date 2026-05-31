@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"time"
 
-	"git.luzifer.io/luzifer/birthday-notifier/pkg/formatter"
-	"git.luzifer.io/luzifer/birthday-notifier/pkg/notifier"
-	"github.com/Luzifer/go_helpers/v2/fieldcollection"
+	"github.com/Luzifer/go_helpers/fieldcollection"
 	"github.com/emersion/go-vcard"
 	"github.com/gregdel/pushover"
+
+	"git.luzifer.io/luzifer/birthday-notifier/pkg/formatter"
+	"git.luzifer.io/luzifer/birthday-notifier/pkg/notifier"
 )
 
 type (

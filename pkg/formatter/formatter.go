@@ -10,8 +10,9 @@ import (
 	"text/template"
 	"time"
 
-	"git.luzifer.io/luzifer/birthday-notifier/pkg/dateutil"
 	"github.com/emersion/go-vcard"
+
+	"git.luzifer.io/luzifer/birthday-notifier/pkg/dateutil"
 )
 
 const timeDay = 24 * time.Hour

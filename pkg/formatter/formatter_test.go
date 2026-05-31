@@ -6,13 +6,16 @@ import (
 	"testing"
 	"time"
 
-	"git.luzifer.io/luzifer/birthday-notifier/pkg/dateutil"
 	"github.com/emersion/go-vcard"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"git.luzifer.io/luzifer/birthday-notifier/pkg/dateutil"
 )
 
 func getTestVCard(t *testing.T, content string) vcard.Card {
+	t.Helper()
+
 	c, err := vcard.NewDecoder(strings.NewReader(content)).Decode()
 	require.NoError(t, err)
 

@@ -10,11 +10,12 @@ import (
 	"net/http"
 	"time"
 
-	"git.luzifer.io/luzifer/birthday-notifier/pkg/formatter"
-	"git.luzifer.io/luzifer/birthday-notifier/pkg/notifier"
-	"github.com/Luzifer/go_helpers/v2/fieldcollection"
+	"github.com/Luzifer/go_helpers/fieldcollection"
 	"github.com/emersion/go-vcard"
 	"github.com/sirupsen/logrus"
+
+	"git.luzifer.io/luzifer/birthday-notifier/pkg/formatter"
+	"git.luzifer.io/luzifer/birthday-notifier/pkg/notifier"
 )
 
 const webhookPostTimeout = 2 * time.Second

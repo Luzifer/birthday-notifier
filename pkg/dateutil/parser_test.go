@@ -6,6 +6,7 @@ import (
 
 	"github.com/emersion/go-vcard"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestParseDate(t *testing.T) {
@@ -43,7 +44,7 @@ func TestParseDate(t *testing.T) {
 		},
 	} {
 		d, err := Parse(tc.Field)
-		assert.NoError(t, err, tc.Field)
+		require.NoError(t, err, tc.Field)
 		assert.Equal(t, tc.ExpectedTime, d)
 	}
 }

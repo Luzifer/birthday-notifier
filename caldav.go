@@ -6,12 +6,13 @@ import (
 	"net/http"
 	"time"
 
-	"git.luzifer.io/luzifer/birthday-notifier/pkg/config"
-	"git.luzifer.io/luzifer/birthday-notifier/pkg/dateutil"
 	"github.com/emersion/go-vcard"
 	"github.com/emersion/go-webdav"
 	"github.com/emersion/go-webdav/carddav"
 	"github.com/sirupsen/logrus"
+
+	"git.luzifer.io/luzifer/birthday-notifier/pkg/config"
+	"git.luzifer.io/luzifer/birthday-notifier/pkg/dateutil"
 )
 
 type (

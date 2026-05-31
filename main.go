@@ -1,3 +1,4 @@
+// birthday-notifier utility
 package main
 
 import (
@@ -6,17 +7,16 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Luzifer/go_helpers/fieldcollection"
+	"github.com/Luzifer/rconfig/v2"
+	"github.com/emersion/go-vcard"
+	"github.com/robfig/cron/v3"
+	"github.com/sirupsen/logrus"
+
 	"git.luzifer.io/luzifer/birthday-notifier/pkg/config"
 	"git.luzifer.io/luzifer/birthday-notifier/pkg/dateutil"
 	"git.luzifer.io/luzifer/birthday-notifier/pkg/formatter"
 	"git.luzifer.io/luzifer/birthday-notifier/pkg/notifier"
-	"github.com/emersion/go-vcard"
-	"github.com/pkg/errors"
-	"github.com/robfig/cron/v3"
-	"github.com/sirupsen/logrus"
-
-	"github.com/Luzifer/go_helpers/v2/fieldcollection"
-	"github.com/Luzifer/rconfig/v2"
 )
 
 var (
@@ -35,12 +35,12 @@ var (
 func initApp() error {
 	rconfig.AutoEnv(true)
 	if err := rconfig.ParseAndValidate(&cfg); err != nil {
-		return errors.Wrap(err, "parsing cli options")
+		return fmt.Errorf("parsing cli options: %w", err)
 	}
 
 	l, err := logrus.ParseLevel(cfg.LogLevel)
 	if err != nil {
-		return errors.Wrap(err, "parsing log-level")
+		return fmt.Errorf("parsing log-level: %w", err)
 	}
 	logrus.SetLevel(l)
 

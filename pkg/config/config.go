@@ -8,10 +8,11 @@ import (
 	"os"
 	"time"
 
-	"git.luzifer.io/luzifer/birthday-notifier/pkg/formatter"
-	"github.com/Luzifer/go_helpers/v2/fieldcollection"
+	"github.com/Luzifer/go_helpers/fieldcollection"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
+
+	"git.luzifer.io/luzifer/birthday-notifier/pkg/formatter"
 )
 
 // WebdavPrincipalNextcloud is the principal default used for config
@@ -63,7 +64,7 @@ func Load(r io.Reader) (f File, err error) {
 // LoadFromFile is a convenience wrapper around Load to read the config
 // from file system
 func LoadFromFile(filePath string) (f File, err error) {
-	inFile, err := os.Open(filePath) //#nosec G304 -- Intended to load a given path
+	inFile, err := os.Open(filePath) //#nosec:G304 // Intended to load a given path
 	if err != nil {
 		return f, fmt.Errorf("opening file: %w", err)
 	}
