@@ -10,7 +10,7 @@ import (
 
 	"github.com/Luzifer/go_helpers/fieldcollection"
 	"github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v3"
+	"go.yaml.in/yaml/v3"
 
 	"git.luzifer.io/luzifer/birthday-notifier/pkg/formatter"
 )
