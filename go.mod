@@ -7,7 +7,7 @@ require (
 	github.com/Luzifer/rconfig/v2 v2.6.2
 	github.com/emersion/go-vcard v0.0.0-20241024213814-c9703dde27ff
 	github.com/emersion/go-webdav v0.7.0
-	github.com/gregdel/pushover v1.3.0
+	github.com/gregdel/pushover v1.4.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.9.4
 	github.com/stretchr/testify v1.11.1
