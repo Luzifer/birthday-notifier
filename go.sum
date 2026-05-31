@@ -7,8 +7,9 @@ github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/emersion/go-ical v0.0.0-20220601085725-0864dccc089f/go.mod h1:2MKFUgfNMULRxqZkadG1Vh44we3y5gJAtTBlVsx1BKQ=
-github.com/emersion/go-vcard v0.0.0-20230815062825-8fda7d206ec9 h1:ATgqloALX6cHCranzkLb8/zjivwQ9DWWDCQRnxTPfaA=
 github.com/emersion/go-vcard v0.0.0-20230815062825-8fda7d206ec9/go.mod h1:HMJKR5wlh/ziNp+sHEDV2ltblO4JD2+IdDOWtGcQBTM=
+github.com/emersion/go-vcard v0.0.0-20241024213814-c9703dde27ff h1:4N8wnS3f1hNHSmFD5zgFkWCyA4L1kCDkImPAtK7D6tg=
+github.com/emersion/go-vcard v0.0.0-20241024213814-c9703dde27ff/go.mod h1:HMJKR5wlh/ziNp+sHEDV2ltblO4JD2+IdDOWtGcQBTM=
 github.com/emersion/go-webdav v0.5.0 h1:Ak/BQLgAihJt/UxJbCsEXDPxS5Uw4nZzgIMOq3rkKjc=
 github.com/emersion/go-webdav v0.5.0/go.mod h1:ycyIzTelG5pHln4t+Y32/zBvmrM7+mV7x+V+Gx4ZQno=
 github.com/gregdel/pushover v1.3.0 h1:CewbxqsThoN/1imgwkDKFkRkltaQMoyBV0K9IquQLtw=
