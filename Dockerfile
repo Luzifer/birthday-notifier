@@ -1,29 +1,34 @@
-FROM golang:alpine as builder
+FROM golang:1.26.3-alpine AS builder
 
 COPY . /go/src/birthday-notifier
 WORKDIR /go/src/birthday-notifier
 
 RUN set -ex \
- && apk add --update git \
- && go install \
-      -ldflags "-X main.version=$(git describe --tags --always || echo dev)" \
+ && mkdir -p /rootfs/usr/bin \
+ && apk add --update \
+      git \
+ && go build \
+      -ldflags "-s -w -X main.version=$(git describe --tags --always || echo dev)" \
       -mod=readonly \
       -modcacherw \
-      -trimpath
+      -trimpath \
+      -o /rootfs/usr/bin/birthday-notifier
 
 
-FROM alpine:latest
+FROM alpine:3.23
 
-LABEL maintainer "Knut Ahlers <knut@ahlers.me>"
+LABEL org.opencontainers.image.authors="Knut Ahlers <knut@ahlers.me>" \
+      org.opencontainers.image.url="https://git.luzifer.io/registry/-/packages/container/birthday-notifier" \
+      org.opencontainers.image.source="https://git.luzifer.io/luzifer/birthday-notifier" \
+      org.opencontainers.image.title="birthday-notifier"
 
 RUN set -ex \
  && apk --no-cache add \
       ca-certificates \
       tzdata
 
-COPY --from=builder /go/bin/birthday-notifier /usr/local/bin/birthday-notifier
+COPY --from=builder /rootfs/ /
 
-ENTRYPOINT ["/usr/local/bin/birthday-notifier"]
-CMD ["--"]
+USER 1000:1000
 
-# vim: set ft=Dockerfile:
+ENTRYPOINT ["/usr/bin/birthday-notifier"]
