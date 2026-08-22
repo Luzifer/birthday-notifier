@@ -9,7 +9,7 @@ require (
 	github.com/emersion/go-webdav v0.7.0
 	github.com/gregdel/pushover v1.4.0
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/sirupsen/logrus v1.10.0
+	github.com/sirupsen/logrus v1.10.1
 	github.com/stretchr/testify v1.12.1
 	go.yaml.in/yaml/v3 v3.0.5
 )
