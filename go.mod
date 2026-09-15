@@ -3,7 +3,7 @@ module git.luzifer.io/luzifer/birthday-notifier
 go 1.26.0
 
 require (
-	github.com/Luzifer/go_helpers/fieldcollection v0.5.1
+	github.com/Luzifer/go_helpers/fieldcollection v0.5.4
 	github.com/Luzifer/rconfig/v2 v2.6.2
 	github.com/emersion/go-vcard v0.1.0
 	github.com/emersion/go-webdav v0.7.0
