@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	github.com/Luzifer/go_helpers/fieldcollection v0.5.5
-	github.com/Luzifer/rconfig/v2 v2.6.2
+	github.com/Luzifer/rconfig/v2 v2.6.3
 	github.com/emersion/go-vcard v0.1.0
 	github.com/emersion/go-webdav v0.7.0
 	github.com/gregdel/pushover v1.4.0
