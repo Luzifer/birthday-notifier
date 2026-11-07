@@ -1,5 +1,5 @@
-github.com/Luzifer/go_helpers/fieldcollection v0.5.4 h1:R53guE7rTw7pMqJG1b4jOj+/NWol1a+lsLoTUgxhb0E=
-github.com/Luzifer/go_helpers/fieldcollection v0.5.4/go.mod h1:bjXDFP7XRI3CEuBBVKbUTH4rZ06FB9OAFXu+Micm+ik=
+github.com/Luzifer/go_helpers/fieldcollection v0.5.5 h1:d7biLNSQWln4j0390ugornaGFK6KAXxQ1uY6FyIrZ5A=
+github.com/Luzifer/go_helpers/fieldcollection v0.5.5/go.mod h1:J9rrJEdS6RYcLQUCWo8EaSQNZhVFDzJdMyBZ1mx2boI=
 github.com/Luzifer/rconfig/v2 v2.6.2 h1:Dx9WetHvyUx84P8D7WDr7OvsEsD0XT3t04DtCSqT95o=
 github.com/Luzifer/rconfig/v2 v2.6.2/go.mod h1:F8bKJYwzwQT0m0V0N6S8uS7tI6jm05ANCe3D0EHuX/w=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
